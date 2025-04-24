@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <title>بازی اعتماد</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap');
     body {
       direction: rtl;
-      font-family: sans-serif;
+      font-family: 'Vazirmatn', sans-serif;
       background: #f0f0f0;
       display: flex;
       justify-content: center;
@@ -18,23 +19,23 @@
     .container {
       display: flex;
       justify-content: space-between;
-      width: 100%;
-      max-width: 1200px;
-      margin-top: 50px;
+      width: 90%;
+      max-width: 1400px;
+      margin-top: 40px;
     }
     .game-container, .sidebar {
       background: white;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
     }
-    .game-container { width: 60%; text-align: center; }
-    .sidebar { width: 35%; text-align: center; }
+    .game-container { width: 65%; text-align: center; font-size: 18px; }
+    .sidebar { width: 30%; text-align: right; font-size: 16px; line-height: 1.8; }
     .players {
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       align-items: center;
-      margin: 20px 0;
+      margin: 30px 0;
     }
     .player, .agent {
       display: flex;
@@ -42,10 +43,10 @@
       align-items: center;
     }
     .hat {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       border-radius: 10px;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
     }
     .hat.red { background: red; }
     .hat.pink { background: pink; }
@@ -53,33 +54,30 @@
     .hat.brown { background: goldenrod; }
     .hat.blue { background: blue; }
     .coin-buttons button, .action-buttons button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
+      margin: 10px;
+      padding: 12px 28px;
+      font-size: 18px;
       cursor: pointer;
+      border-radius: 10px;
+      border: none;
+      background-color: #e0e0e0;
+      transition: background 0.3s;
     }
-    .scoreboard {
-      margin-top: 15px;
-      text-align: center;
+    .coin-buttons button:hover, .action-buttons button:hover {
+      background-color: #d0d0d0;
     }
     .form-container input, .form-container select, .form-container button {
       margin: 10px 0;
-      padding: 10px;
-      font-size: 16px;
-    }
-    table {
+      padding: 12px;
+      font-size: 18px;
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
+      border-radius: 8px;
       border: 1px solid #ccc;
-      padding: 10px;
-      text-align: center;
     }
-    .negative {
-      color: red;
+    h2, h3 {
+      font-weight: 700;
     }
+    .negative { color: red; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -132,20 +130,6 @@
         </div>
       </div>
       <div id="resultText" style="margin-top:20px; white-space:pre-line;"></div>
-      <div class="scoreboard">
-        <table>
-          <thead>
-            <tr><th>نوع</th><th>امتیاز</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>بازیکن</td><td id="totalScoreDisplay">0</td></tr>
-            <tr><td style="color:goldenrod">قهویی</td><td id="randomScore">0</td></tr>
-            <tr><td style="color:pink">صورتی</td><td id="cooperatorScore">0</td></tr>
-            <tr><td style="color:black">مشکی</td><td id="defectorScore">0</td></tr>
-            <tr><td style="color:blue">آبی</td><td id="titfortatScore">0</td></tr>
-          </tbody>
-        </table>
-      </div>
     </div>
 
     <div class="sidebar">
@@ -206,24 +190,13 @@ function updateSummary() {
   `;
 }
 
-function logToSheet(data) {
-  fetch('https://script.google.com/macros/s/AKfycbwjcJ1boNGITkgnybIQMhYwV6HdSEh9ZhWUqXVk3AzBd6YgzfHOVge2Z9x22yBmBbB-IA/exec', {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-}
-
 function playRound(playerChoice) {
   if (coins === 0) return alert('لطفاً ابتدا مقدار سکه را انتخاب کنید.');
   const agentChoice = getAgentChoice();
   const responseTime = Date.now() - startTime;
-  const minutes = Math.floor(responseTime / 60000);
-  const seconds = ((responseTime % 60000) / 1000).toFixed(2);
-  const responseText = (minutes + parseFloat(seconds) / 60).toFixed(2);
   lastPlayerChoice = playerChoice;
   updateAgentVisual();
+
   let playerReward = 0, agentReward = 0, resultText = '';
   if (playerChoice === 'trust' && agentChoice === 'trust') {
     playerReward = agentReward = coins;
@@ -248,9 +221,10 @@ function playRound(playerChoice) {
     document.getElementById('playerFace').textContent = '😐';
     document.getElementById('agentFace').textContent = '😐';
   }
+
   totalAgentScores[currentAgent.name] += agentReward;
   totalScore += playerReward;
-  const totalAgentsScore = Object.values(totalAgentScores).reduce((a,b)=>a+b,0);
+
   const userData = {
     username: document.getElementById('username').value,
     age: document.getElementById('age').value,
@@ -267,18 +241,21 @@ function playRound(playerChoice) {
     score_cooperator: totalAgentScores.cooperator,
     score_defector: totalAgentScores.defector,
     score_titfortat: totalAgentScores.titfortat,
-    totalAgentsScore,
+    totalAgentsScore: Object.values(totalAgentScores).reduce((a,b)=>a+b,0),
     responseTime: `${String(Math.floor(responseTime / 60000)).padStart(2, '0')}:${((responseTime % 60000) / 1000).toFixed(2).padStart(5, '0')}`
   };
-  logToSheet(userData);
-  document.getElementById('totalScoreDisplay').innerText = totalScore;
-  document.getElementById('randomScore').innerText = totalAgentScores.random;
-  document.getElementById('cooperatorScore').innerText = totalAgentScores.cooperator;
-  document.getElementById('defectorScore').innerText = totalAgentScores.defector;
-  document.getElementById('titfortatScore').innerText = totalAgentScores.titfortat;
+
+  fetch('https://script.google.com/macros/s/AKfycbwjcJ1boNGITkgnybIQMhYwV6HdSEh9ZhWUqXVk3AzBd6YgzfHOVge2Z9x22yBmBbB-IA/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
+  });
+
   document.getElementById('resultText').innerText = resultText + `
 💰 ایجنت: ${agentReward}`;
   updateSummary();
+
   subRound++;
   if (subRound > 5) {
     subRound = 1;
@@ -302,6 +279,14 @@ function playRound(playerChoice) {
 }
 
 function startGame() {
+  const username = document.getElementById('username').value.trim();
+  const age = document.getElementById('age').value.trim();
+  const gender = document.getElementById('gender').value;
+
+  if (!username || !age || !gender) {
+    alert('لطفاً همه فیلدها را کامل پر کنید.');
+    return;
+  }
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('gameScreen').style.display = 'block';
   updateAgentVisual();
